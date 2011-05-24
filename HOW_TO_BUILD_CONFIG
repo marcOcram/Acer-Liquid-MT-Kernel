@@ -1,0 +1,2 @@
+cp arch/arm/configs/acer_a4_defconfig .config
+patch -p0 < patch
