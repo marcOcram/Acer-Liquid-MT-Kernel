@@ -52,6 +52,12 @@
 
 #define MAX_AXI_KHZ 192000
 
+/*
+ * http://forum.xda-developers.com/showpost.php?p=9115143&postcount=1
+ */
+
+#define PLL2_L_VAL_ADDR  (MSM_CLK_CTL_BASE + 0x33)
+
 struct clock_state {
 	struct clkctl_acpu_speed	*current_speed;
 	struct mutex			lock;
@@ -86,18 +92,24 @@ static struct cpufreq_frequency_table freq_table[] = {
 #define SRC_LPXO (-2)
 #define SRC_AXI  (-1)
 static struct clkctl_acpu_speed acpu_freq_tbl[] = {
-	{ 24576,  SRC_LPXO, 0, 0,  30720,  1000, VDD_RAW(1000) },
-	{ 61440,  PLL_3,    5, 11, 61440,  1000, VDD_RAW(1000) },
-	{ 122880, PLL_3,    5, 5,  61440,  1000, VDD_RAW(1000) },
-	{ 184320, PLL_3,    5, 4,  61440,  1000, VDD_RAW(1000) },
-	{ MAX_AXI_KHZ, SRC_AXI, 1, 0, 61440, 1000, VDD_RAW(1000) },
-	{ 245760, PLL_3,    5, 2,  61440,  1000, VDD_RAW(1000) },
-	{ 368640, PLL_3,    5, 1,  122800, 1050, VDD_RAW(1050) },
-	{ 768000, PLL_1,    2, 0,  153600, 1100, VDD_RAW(1100) },
+	/*
+	 * My opinion: 
+	 * Somewhere is a minimum voltage specified, if voltage is
+	 * lower than specified voltage, specified minimum voltage
+	 * is selected
+	 */
+	{ 24576,  SRC_LPXO, 0, 0,  30720,  25, VDD_RAW(25) },
+	{ 61440,  PLL_3,    5, 11, 61440,  25, VDD_RAW(25) },
+	{ 122880, PLL_3,    5, 5,  61440,  25, VDD_RAW(25) },
+	{ 184320, PLL_3,    5, 4,  61440,  25, VDD_RAW(25) },
+	{ MAX_AXI_KHZ, SRC_AXI, 1, 0, 61440, 25, VDD_RAW(25) },
+	{ 245760, PLL_3,    5, 2,  61440,  25, VDD_RAW(25) },
+	{ 368640, PLL_3,    5, 1,  122800, 25, VDD_RAW(25) },
+	{ 768000, PLL_1,    2, 0,  153600, 850, VDD_RAW(850) },
 	/* ACPU >= 806.4MHz requires MSMC1 @ 1.2V. Voting for
 	 * AXI @ 192MHz accomplishes this implicitly. 806.4MHz
 	 * is updated to 1024MHz at runtime for MSM8x55. */
-	{ 806400, PLL_2,    3, 0,  192000, 1100, VDD_RAW(1100) },
+	{ 806400, PLL_2,    3, 0,  192000, 875, VDD_RAW(875) },
 	{ 0 }
 };
 
