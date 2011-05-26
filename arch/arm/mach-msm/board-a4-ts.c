@@ -114,7 +114,7 @@ static struct cypress_i2c_platform_data a4_cypress_ts_data = {
 	.abs_width_min = 0,
 	.abs_width_max = 255,
 	.points_max = 4,
-	.y_max = 929,
+	.y_max = 929, // 929
 	.irqflags = IRQF_TRIGGER_FALLING,
 	.hw_init = a4_ts_hw_init,
 	.power = a4_ts_power,
@@ -123,11 +123,23 @@ static struct cypress_i2c_platform_data a4_cypress_ts_data = {
 static ssize_t a4_virtual_keys_show(struct kobject *kobj,
 		struct kobj_attribute *attr, char *buf)
 {
+
+/*
+ * WW:XX:YY:ZZ
+ * WW => x-Alignment
+ * XX => y-Alignment
+ * YY && ZZ create a rectangle , where
+ * YY is for the x-Length (well working)
+ * ZZ is for the y-Length (bad working)
+ * the center of the touchpoint/rectangle is the intersection of WW && XX
+ * XX = 869 is for my phone, as the touchscreen is "broken" on the symbols
+ */
+
 	return sprintf(buf,
-			__stringify(EV_KEY) ":" __stringify(KEY_HOME)  ":70:890:80:80"
-			":" __stringify(EV_KEY) ":" __stringify(KEY_SEARCH)  ":180:890:80:80"
-			":" __stringify(EV_KEY) ":" __stringify(KEY_BACK)   ":310:890:80:80"
-			":" __stringify(EV_KEY) ":" __stringify(KEY_MENU)   ":425:890:80:80"
+			__stringify(EV_KEY) ":" __stringify(KEY_HOME)		":50:869:80:80"
+			":" __stringify(EV_KEY) ":" __stringify(KEY_SEARCH)	":170:869:80:80"
+			":" __stringify(EV_KEY) ":" __stringify(KEY_BACK)	":300:869:80:80"
+			":" __stringify(EV_KEY) ":" __stringify(KEY_MENU)	":435:869:80:80"
 			"\n");
 }
 
