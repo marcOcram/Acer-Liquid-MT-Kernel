@@ -87,8 +87,19 @@
 #include "mddihost.h"
 #include "mddihosti.h"
 
+/*
+ * marcOcram // TechnoLover
+ * add/remove last "_" to disable/enable
+ * TODO: Add entries in KConfig
+ */
+
+#define DISABLE_VSYNC_
+#define ENABLE_LCD_80HZ
+
+
 #define A4_BL_TEST_CABC
 #define MDDI_AUO_WVGA_ID	1
+// changes sensivity?
 #define GPIO_LCD_RST		180
 #define MDDI_AUO_WVGA_MFR_NAME		0xB9F6
 #define MDDI_AUO_WVGA_PRODUCT_CODE	0x5582
@@ -110,6 +121,17 @@ static int mddi_auo_lcd_off(struct platform_device *pdev);
 static int __init mddi_auo_probe(struct platform_device *pdev);
 static int __init mddi_auo_init(void);
 wait_queue_head_t wait;
+#ifdef ENABLE_LCD_80HZ
+/*
+ * marcOcram // TechnoLover
+ * 
+ * Lower T2 means a higher LCD-Frequency which results in higher framerate (more FPS)
+ * needs more battery I think
+ * 245 ~ 38 fps
+ * 340 ~ 29 fps
+ */
+static int T2 = 245; //default one is 340
+#endif
 
 void send_mddi_auo_poweron_sequence(void)
 {
@@ -240,6 +262,12 @@ void send_mddi_auo_poweron_sequence(void)
 	write_client_reg(0x3A00, 0x77);
 
 	/* PWM CLK = 5500KHz/(256*Div), Setting Div = 0x01 ==> 21KHz */
+	/* 
+	 * PWMF = 11000 KHz
+	 * write_client_reg(0x6A01, 0x01);
+	 * PWM CLK = 11000 KHz / (256*Div), Setting Div => 0x01 ==> 42 kHz
+	 * write_client_reg(0x6A02, 0x01);
+	 */
 	write_client_reg(0x6A02, 0x01);
 
 	/* PWM backlight control, turn on */
@@ -261,9 +289,20 @@ void send_mddi_auo_poweron_sequence(void)
 	/* Enable Force PWM ctrl */
 	write_client_reg(0x6A17, 0x01);
 #endif
-
+	
+#ifdef DISABLE_VSYNC
+	/* FTE, disable vsync */
+	write_client_reg(0x3500, 0x00);
+#else
 	/* FTE, enable vsync */
 	write_client_reg(0x3500, 0x10);
+#endif
+
+#ifdef ENABLE_LCD_80HZ
+	/* changing lcd-frequency */
+	write_client_reg(0xB101, (0xFF00 & T2) >> 8);
+	write_client_reg(0xB102, 0x00FF & T2);
+#endif
 
 	/* display on */
 	write_client_reg(0x2900, 0x00);
@@ -447,6 +486,10 @@ static int __init mddi_auo_init(void)
 		pinfo->width = 47;		/* Actual size, in mm */
 		pinfo->height = 79;
 		pinfo->mddi.vdopkt = MDDI_DEFAULT_PRIM_PIX_ATTR;
+#ifdef DISABLE_VSYNC
+		pinfo->lcd.vsync_enable = FALSE;
+		pinfo->lcd.hw_vsync_mode = FALSE;
+#else
 		pinfo->lcd.vsync_enable = TRUE;
 		pinfo->lcd.refx100 = 5800;
 		pinfo->lcd.v_back_porch = 2;
@@ -454,8 +497,9 @@ static int __init mddi_auo_init(void)
 		pinfo->lcd.v_pulse_width = 2;
 		pinfo->lcd.hw_vsync_mode = TRUE;
 		pinfo->lcd.vsync_notifier_period = 0;
+#endif
 
-		/* Init GPIOs*/
+		/* Init GPIOs */
 		auo_gpio_init();
 
 		ret = platform_device_register(&this_device);
@@ -467,6 +511,10 @@ static int __init mddi_auo_init(void)
 		}
 
 	}
+/*
+ * Testing - https://github.com/netarchy/Supersonic-2.6.32
+ * DEVICE_ATTR(t2, 0644, NULL, NULL);
+ */
 	init_waitqueue_head(&wait);
 	pr_debug("[LCD_MDDI] %s (%d) -- leave\n", __func__, __LINE__);
 	return ret;
