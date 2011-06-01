@@ -5,7 +5,7 @@ config DISABLE_VSYNC
 	default n
 
 config ENABLE_LCD_80HZ
-	depends on DISABLE_VSYNC
+	depends on !DISABLE_VSYNC
 	bool "Do you want to enable 80Hz LCD-Frequency?"
 	default n
 
@@ -754,7 +754,7 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 	  to override these values.
 
 config MSM_CPU_FREQ_MAX
-	int "Max CPU Frequency"
+	int "Max CPU Frequency - 806400, 902400, 1017600, 1113600, 1209600, 1305600, 1401600, 1497600"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
 	default 806400
 
