@@ -1,5 +1,14 @@
 if ARCH_MSM
 
+config DISABLE_VSYNC
+	bool "Do you want to disable VSync?"
+	default n
+
+config ENABLE_LCD_80HZ
+	depends on DISABLE_VSYNC
+	bool "Do you want to enable 80Hz LCD-Frequency?"
+	default n
+
 choice
 	prompt "MSM SoC Type"
 	default ARCH_MSM7X00A
@@ -747,7 +756,7 @@ config MSM_CPU_FREQ_SET_MIN_MAX
 config MSM_CPU_FREQ_MAX
 	int "Max CPU Frequency"
 	depends on MSM_CPU_FREQ_SET_MIN_MAX
-	default 384000
+	default 806400
 
 config MSM_CPU_FREQ_MIN
 	int "Min CPU Frequency"

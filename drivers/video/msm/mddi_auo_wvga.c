@@ -87,16 +87,6 @@
 #include "mddihost.h"
 #include "mddihosti.h"
 
-/*
- * marcOcram // TechnoLover
- * add/remove last "_" to disable/enable
- * TODO: Add entries in KConfig
- */
-
-#define DISABLE_VSYNC_
-#define ENABLE_LCD_80HZ
-
-
 #define A4_BL_TEST_CABC
 #define MDDI_AUO_WVGA_ID	1
 // changes sensivity?
@@ -121,7 +111,7 @@ static int mddi_auo_lcd_off(struct platform_device *pdev);
 static int __init mddi_auo_probe(struct platform_device *pdev);
 static int __init mddi_auo_init(void);
 wait_queue_head_t wait;
-#ifdef ENABLE_LCD_80HZ
+#ifdef CONFIG_ENABLE_LCD_80HZ
 /*
  * marcOcram // TechnoLover
  * 
@@ -290,7 +280,7 @@ void send_mddi_auo_poweron_sequence(void)
 	write_client_reg(0x6A17, 0x01);
 #endif
 	
-#ifdef DISABLE_VSYNC
+#ifdef CONFIG_DISABLE_VSYNC
 	/* FTE, disable vsync */
 	write_client_reg(0x3500, 0x00);
 #else
@@ -298,7 +288,7 @@ void send_mddi_auo_poweron_sequence(void)
 	write_client_reg(0x3500, 0x10);
 #endif
 
-#ifdef ENABLE_LCD_80HZ
+#ifdef CONFIG_ENABLE_LCD_80HZ
 	/* changing lcd-frequency */
 	write_client_reg(0xB101, (0xFF00 & T2) >> 8);
 	write_client_reg(0xB102, 0x00FF & T2);
@@ -486,7 +476,7 @@ static int __init mddi_auo_init(void)
 		pinfo->width = 47;		/* Actual size, in mm */
 		pinfo->height = 79;
 		pinfo->mddi.vdopkt = MDDI_DEFAULT_PRIM_PIX_ATTR;
-#ifdef DISABLE_VSYNC
+#ifdef CONFIG_DISABLE_VSYNC
 		pinfo->lcd.vsync_enable = FALSE;
 		pinfo->lcd.hw_vsync_mode = FALSE;
 #else
