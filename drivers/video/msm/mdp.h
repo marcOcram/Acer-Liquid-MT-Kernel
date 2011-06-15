@@ -286,7 +286,9 @@ struct mdp_dma_data {
 #define MDP_SYNCFG_HGT_LOC 21
 #define MDP_SYNCFG_VSYNC_EXT_EN BIT(20)
 #define MDP_SYNCFG_VSYNC_INT_EN BIT(19)
+#ifndef CONFIG_DISABLE_VSYNC
 #define MDP_HW_VSYNC
+#endif
 #endif
 
 /*

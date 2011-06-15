@@ -1704,6 +1704,7 @@ int mdp4_overlay_play(struct fb_info *info, struct msmfb_overlay_data *req,
 			cancel_delayed_work(&mfd->framebuffer_update_worker);
 			mfd->schedule_work_count = 0;
 			mfd->skip_fb = 1;
+#ifdef USE_DMAS
 			if (mdp4_mddi_overlay_kickoff(mfd, pipe) < 0) {
 				pr_err("Reset MDP\n");
 				mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_ON, FALSE);
@@ -1712,6 +1713,9 @@ int mdp4_overlay_play(struct fb_info *info, struct msmfb_overlay_data *req,
 			} else {
 				schedule_delayed_work(&mfd->framebuffer_update_worker, 15);
 			}
+#else
+			mdp4_mddi_overlay_kickoff(mfd, pipe);
+#endif
 		}
 #else
 			mdp4_mddi_overlay_kickoff(mfd, pipe);

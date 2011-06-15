@@ -93,7 +93,11 @@ static char *blt_phy;
 static int vsync_start_y_adjust = 4;
 static int dmap_vsync_enable;
 #else
-static int dmap_vsync_enable = 1;	/* for enable vsync alignment in overlay */
+#ifdef CONFIG_DISABLE_VSYNC
+static int dmap_vsync_enable = 0;	/* for enable vsync alignment in overlay */
+#else
+static int dmap_vsync_enable = 1;
+#endif
 
 void mdp_dmap_vsync_set(int enable)
 {
@@ -299,8 +303,11 @@ void mdp4_overlay_update_lcd(struct msm_fb_data_type *mfd)
 	mdp4_overlay_dmas_xy(pipe);
 
 	mdp4_overlay_dmas_cfg(mfd, 0);
-
+#ifdef CONFIG_DISABLE_VSYNC
+	mdp4_mddi_vsync_enable(mfd, pipe, 0);
+#else
 	mdp4_mddi_vsync_enable(mfd, pipe, 1);
+#endif
 #else
 	mdp4_overlay_dmap_xy(pipe);
 
@@ -475,7 +482,9 @@ void mdp4_mddi_overlay_kickoff(struct msm_fb_data_type *mfd,
 
 		if (pipe != mddi_pipe) pr_err("Overlay Timeout\n");
 		else pr_err("Framebuffer Timeout\n");
+#ifdef USE_DMAS
 		return -1;
+#endif
 	}
 #endif
 	pending_pipe = NULL;
@@ -575,8 +584,11 @@ void mdp4_dma_s_update_lcd(struct msm_fb_data_type *mfd,
 	MDP_OUTP(MDP_BASE + 0x00098, 0x01);
 
 	MDP_OUTP(MDP_BASE + 0xa0000, dma_s_cfg_reg);
-
+#ifdef CONFIG_DISABLE_VSYNC
+	mdp4_mddi_vsync_enable(mfd, pipe, 0);
+#else
 	mdp4_mddi_vsync_enable(mfd, pipe, 1);
+#endif
 
 	/* MDP cmd block disable */
 	mdp_pipe_ctrl(MDP_CMD_BLOCK, MDP_BLOCK_POWER_OFF, FALSE);

@@ -42,7 +42,9 @@ extern struct mdp4_statistic mdp4_stat;
 //#define MDP4_NONBLOCKING	/* For fix tearing effect */
 
 #ifdef CONFIG_FB_MSM_OVERLAY
+#ifdef CONFIG_ENABLE_USE_DMAS
 #define USE_DMAS			/* For reduce sub-menu tearing effect */
+#endif
 #ifndef USE_DMAS
 #define MDP4_MDDI_DMA_SWITCH
 #endif
