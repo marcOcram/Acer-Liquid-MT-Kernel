@@ -6,8 +6,13 @@ config DISABLE_VSYNC
 
 config ENABLE_LCD_80HZ
 	depends on !DISABLE_VSYNC
-	bool "Do you want to enable 80Hz LCD-Frequency?"
+	bool "Do you want to enable 80Hz LCD-Frequency? NOT RECOMMENDED!"
 	default n
+
+config ENABLE_USE_DMAS
+	depends on DISABLE_VSYNC
+	bool "Do you want to enable USE_DMAS? Disable for removing frame-cap!"
+	default y
 
 choice
 	prompt "MSM SoC Type"
